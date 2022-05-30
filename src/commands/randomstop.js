@@ -14,7 +14,12 @@ module.exports = {
             option.setName('line')
                 .setDescription('Get a random line that courses at the stop')),
     async execute(client, interaction) {
-        await interaction.reply('Please wait...')
+        const startEmbed = new MessageEmbed()
+            .setTitle(`Fetching your stop...`)
+            .setColor('#0099ff')
+            .setTimestamp()
+            .setFooter(`Powered by UM Warszawy`)
+        await interaction.reply({content: 'Please wait...', embeds: [startEmbed]})
         const stops = require('../../data/warszawa.json')
         
         const randomStop = stops.stops[Math.floor(Math.random() * stops.stops.length)]
