@@ -9,22 +9,41 @@ module.exports = {
         .setDescription('Get a random Warsaw bus/tram stop')
         .addBooleanOption(option =>
             option.setName('location')
-                .setDescription('Get the location of the stop')),
+                .setDescription('Get the location of the stop'))
+        .addBooleanOption(option => 
+            option.setName('line')
+                .setDescription('Get a random line that courses at the stop')),
     async execute(client, interaction) {
         await interaction.reply('Please wait...')
         const stops = require('../../data/warszawa.json')
         
         const randomStop = stops.stops[Math.floor(Math.random() * stops.stops.length)]
+        const getLine = interaction.options.getBoolean('line')
+        let stopID, lines
 
         // url encoded randomstop
-        const stopID = await getStopID(randomStop)
+        try {
+            if (getLine !== false) {
+                stopID = await getStopID(randomStop)
 
-        const lines = await getVehiclesAtStop(stopID)
+                lines = await getVehiclesAtStop(stopID)
+            } else {
+                throw new Error()
+            }
+        } catch {
+            const finalEmbed = new MessageEmbed()
+                .setTitle(`${randomStop}`)
+                .setColor('#0099ff')
+                .setTimestamp()
+                .setFooter(`Powered by UM Warszawy`)
+
+            return interaction.editReply({ content: 'Here is your stop:', embeds: [finalEmbed] })
+        }
 
 
         const line = lines[Math.floor(Math.random() * lines.length)]
         let lineType
-        if (line.startsWith('S')) lineType = 'Szybka Kolej Mazowiecka'
+        if (line.startsWith('S')) lineType = 'Szybka Kolej Miejska'
         else if (line.startsWith('R')) lineType = 'Kolej Mazowiecka'
         else if (line.startsWith('M')) lineType = 'Metro'
         else if (line.startsWith('WKD')) lineType = 'Warszawska Kolej Dojazdowa'
