@@ -1,18 +1,12 @@
 const { SlashCommandBuilder } = require('@discordjs/builders')
 const fetch = require('node-fetch')
 const { MessageEmbed } = require('discord.js')
-const { getStopID, getCoordinatesOfStop, getVehiclesAtStop } = require('../libs/warsaw-api');
+const { getVehiclesAtPole, selectRandomStop } = require('../libs/warsaw-api');
 
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('randomstop')
-        .setDescription('Get a random Warsaw bus/tram stop')
-        .addBooleanOption(option =>
-            option.setName('location')
-                .setDescription('Get the location of the stop'))
-        .addBooleanOption(option => 
-            option.setName('line')
-                .setDescription('Get a random line that courses at the stop')),
+        .setDescription('Get a random Warsaw bus/tram stop'),
     async execute(client, interaction) {
         const startEmbed = new MessageEmbed()
             .setTitle(`Fetching your stop...`)
@@ -20,32 +14,13 @@ module.exports = {
             .setTimestamp()
             .setFooter(`Powered by UM Warszawy`)
         await interaction.reply({content: 'Please wait...', embeds: [startEmbed]})
-        const stops = require('../../data/warszawa.json')
-        
-        const randomStop = stops.stops[Math.floor(Math.random() * stops.stops.length)]
-        const getLine = interaction.options.getBoolean('line')
-        let stopID, lines
+        let stop = await selectRandomStop()
 
-        // url encoded randomstop
-        try {
-            if (getLine !== false) {
-                stopID = await getStopID(randomStop)
-
-                lines = await getVehiclesAtStop(stopID)
-            } else {
-                throw new Error()
-            }
-        } catch {
-            const finalEmbed = new MessageEmbed()
-                .setTitle(`${randomStop}`)
-                .setColor('#0099ff')
-                .setTimestamp()
-                .setFooter(`Powered by UM Warszawy`)
-
-            return interaction.editReply({ content: 'Here is your stop:', embeds: [finalEmbed] })
+        let lines = await getVehiclesAtPole(stop.stopID, stop.poleID)
+        while (!lines) {
+            stop = await selectRandomStop()
+            lines = await getVehiclesAtPole(stop.stopID, stop.poleID)
         }
-
-
         const line = lines[Math.floor(Math.random() * lines.length)]
         let lineType
         if (line.startsWith('S')) lineType = 'Szybka Kolej Miejska'
@@ -58,17 +33,14 @@ module.exports = {
         else if (line.length === 3) lineType = 'Autobus'
         else lineType = 'Tramwaj'
 
-        const getLocation = interaction.options.getBoolean('location', false)
-        let [locationLat, locationLng] = getLocation ? getCoordinatesOfStop(stopID) : [null, null]
-
-        const locationMsg = getLocation ? ` - [Lokalizacja](https://www.google.com/maps/search/?api=1&query=${locationLat},${locationLng})` : ''
+        const locationMsg = ` - [Lokalizacja](https://www.google.com/maps/search/?api=1&query=${stop.latitude},${stop.longitude})`
 
         const finalEmbed = new MessageEmbed()
-            .setTitle(`${randomStop}`)
+            .setTitle(`${stop.stopName} ${stop.poleID}`)
             .setDescription(`${lineType} - Linia **${line}**` + locationMsg)
             .setColor('#0099ff')
             .setTimestamp()
-            .setFooter(`Powered by UM Warszawy - Stop ID ${stopID}`)
+            .setFooter(`Powered by UM Warszawy - Stop ID ${stop.stopID}`)
 
         await interaction.editReply({ content: 'Here is your stop:', embeds: [finalEmbed] })
     }

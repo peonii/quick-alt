@@ -1,9 +1,8 @@
-const getCoordinatesOfStop = require('./warsaw-api/getCoordinatesOfStop')
-const getStopID = require('./warsaw-api/getStopID')
-const getVehiclesAtStop = require('./warsaw-api/getVehiclesAtStop')
+const selectRandomStop = require('./warsaw-api/selectRandomStop')
+const getVehiclesAtPole = require('./warsaw-api/getVehiclesAtPole')
+
 
 module.exports = {
-    getCoordinatesOfStop,
-    getStopID,
-    getVehiclesAtStop
+    selectRandomStop,
+    getVehiclesAtPole
 }

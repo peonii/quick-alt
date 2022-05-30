@@ -4,3 +4,4 @@ yarn.lock
 .DS_Store
 package-lock.json
 keys.json
+deploy.sh

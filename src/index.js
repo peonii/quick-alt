@@ -2,6 +2,9 @@ const { Client, Intents, Collection } = require('discord.js')
 const dotenv = require('dotenv')
 const fs = require('node:fs')
 const path = require('node:path')
+const express = require('express')
+const app = express()
+const cron = require('./cron/cron')
 
 dotenv.config()
 
