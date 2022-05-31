@@ -1,3 +1,5 @@
+const { dailyStopChannelId } = require('../../keys.json')
+
 module.exports = {
     name: 'messageCreate',
     async execute(client, message) {
@@ -16,7 +18,5 @@ module.exports = {
 
         if (message.content.toLowerCase().includes('?stfu')) 
             message.reply('literally 1984')
-
-
     }
 }

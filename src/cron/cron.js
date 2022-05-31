@@ -1,14 +1,16 @@
 const cron = require('node-cron');
 const fs = require('fs');
 const fetch = require('node-fetch');
-const { warsawAPI, dailyStopWebhookURL } = require('../../keys.json')
+const { warsawAPI, webhookId, webhookToken, dailyStopChannelID } = require('../../keys.json')
 const { getVehiclesAtPole, selectRandomStop } = require('../libs/warsaw-api')
+const { WebhookClient, Webhook, MessageEmbed } = require('discord.js')
 
 module.exports = {
-    cronJobs() {
+    cronJobs(client) {
         console.log('Scheduling cron jobs...')
         // fetch new bus stops
-        cron.schedule('0 0 * * *', async () => {
+        cron.schedule('* * * * * *', async () => {
+            /*
             const locationApiEndpoint = `https://api.um.warszawa.pl/api/action/dbstore_get/?id=ab75c33d-3a26-4342-b36a-6e5fef0a3ac3&sortBy=id&apikey=${warsawAPI}`
 
             const data = await fetch(locationApiEndpoint)
@@ -16,6 +18,7 @@ module.exports = {
                 .then(json => {
                     fs.writeFileSync('data/warszawa.json', JSON.stringify(json))
                 })
+            */
 
 
             let stop = await selectRandomStop()
@@ -38,26 +41,32 @@ module.exports = {
             else lineType = 'Tramwaj'
 
             const locationMsg = ` - [Lokalizacja](https://www.google.com/maps/search/?api=1&query=${stop.latitude},${stop.longitude})`
+            console.log('send')
 
-            fetch(dailyStopWebhookURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    embeds: [
-                        {
-                            "title": `${stop.stopName} ${stop.poleID}`,
-                            "description": `${lineType} - Linia **${line}**${locationMsg}`,
-                            "color": 11927540,
-                            "footer": {
-                                "text": `Powered by Warszawa API - Stop ID ${stop.stopID}`
-                            },
-                            "timestamp": new Date().toISOString()
-                        }
-                    ]
-                })
+            const webhookClient = new WebhookClient({ id: webhookId, token: webhookToken })
+            console.log('send')
+            const embed = new MessageEmbed()
+                .setTitle(`${stop.stopName} ${stop.poleID}`)
+                .setDescription(`${lineType} - Linia **${line}**${locationMsg}`)
+                .setColor('#0099ff')
+
+            const msg = await webhookClient.send({
+                embeds: [
+                    embed
+                ],
             })
+
+            const months = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia']
+
+            const currentDate = new Date()
+            const currentDateFormatted = `${currentDate.getDate()} ${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`
+
+            client.channels.cache.get(dailyStopChannelID).messages.cache.get(msg.id).startThread({
+                reason: 'Daily stop',
+                autoArchiveDuration: 1440,
+                name: `${currentDateFormatted} - ${stop.stopName} ${stop.poleID}`,
+            })
+            //client.channels.cache.get(dailyStopChannelID).threads.create({})
         })
     },
 }
