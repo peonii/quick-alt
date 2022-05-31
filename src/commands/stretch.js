@@ -1,6 +1,6 @@
 const sharp = require('sharp')
 const { SlashCommandBuilder } = require('@discordjs/builders')
-const axios = require('axios')
+const fetch = require('node-fetch')
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,9 +15,9 @@ module.exports = {
         let image = interaction.options.getAttachment('image', false)
         let buffer
         if (image) {
-            // fetch image file
-            const response = await axios.get(image.url, { responseType: 'arraybuffer' })
-            buffer = Buffer.from(response.data, 'binary')
+            const response = await fetch(image.url)
+            const arrayBuffer = await response.arrayBuffer()
+            buffer = await Buffer.from(arrayBuffer)
         } else {
             // fetch last image sent in the channel
             const messages = await interaction.channel.messages.fetch()
@@ -29,13 +29,14 @@ module.exports = {
                 return
             }
             const url = image.url
-            const response = await axios.get(url, { responseType: 'arraybuffer' })
-            buffer = Buffer.from(response.data, 'binary')
+            const response = await fetch(url, { responseType: 'arraybuffer' })
+            const arrayBuffer = await response.arrayBuffer()
+            buffer = await Buffer.from(arrayBuffer)
         }
 
         // stretch the image to 2x width
         const sharpBuf = await sharp(buffer)
-        const stretched = sharpBuf.resize(2 * image.width, image.height, { fit: 'fill' }).toBuffer() // mhm
+        const stretched = await sharpBuf.resize(2 * image.width, image.height, { fit: 'fill' }).toBuffer() // mhm
 
         await interaction.editReply({
             content: 'Here is your stretched image!',
