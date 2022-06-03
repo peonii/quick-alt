@@ -1,5 +1,6 @@
+import { Client, CommandInteraction } from "discord.js"
 
-module.exports = async function handleCommand(client, interaction) {
+export async function handleCommand(client: Client, interaction: CommandInteraction) {
     if (!interaction.isCommand()) return
 
     const command = client.commands.get(interaction.commandName)
@@ -9,6 +10,6 @@ module.exports = async function handleCommand(client, interaction) {
         await command.execute(client, interaction)
     } catch (err) {
         console.error(err)
-        await interaction.channel.send({ content: 'Something went wrong!', ephemeral: true })
+        await interaction.channel?.send({ content: 'Something went wrong!' })
     }
 }

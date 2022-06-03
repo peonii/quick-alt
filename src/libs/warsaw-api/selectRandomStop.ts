@@ -1,6 +1,7 @@
-const stops = require('../../../data/warszawa.json').result
+import stopsIndex from '../../../data/warszawa.json'
 
-module.exports = async function() {
+export default async function() {
+    const stops = stopsIndex.result
     const stop = stops[Math.floor(Math.random() * stops.length)]
 
     return {
