@@ -6,19 +6,14 @@ import path from 'node:path'
 import cronJobs from './cron/cron'
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { guildId } from '../bot.config.json'
+import DiscordEvent from './types/event'
+import Command from './types/command'
 
 dotenv.config()
 
-type CommandFunction = ((interaction: Discord.CommandInteraction | Discord.ButtonInteraction | Discord.ContextMenuInteraction, client: Client, args?: string) => Promise<void>)
-interface CommandFile {
-    __esModule: boolean
-    data: SlashCommandBuilder
-    execute: CommandFunction
-}
-
 declare module 'discord.js' {
     interface Client {
-        commands: Collection<string, CommandFile>
+        commands: Collection<string, Command>
     }
 }
 
@@ -40,8 +35,8 @@ async function updateSlashCommands() {
     const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.ts'))
 
     for (const file of commandFiles) {
-        const command: CommandFile = await import(path.join(commandsPath, file))
-
+        const command: Command = await import(`${__dirname}/commands/${file}`)
+        console.log(`Registering command ${command.data.name}`)
         client.commands.set(command.data.name, command)
         commandsArray.push(command.data.toJSON())
     }
@@ -50,7 +45,8 @@ async function updateSlashCommands() {
     // Global registration
     // await client.application?.commands.set(commandsArray)
 
-    await (await client.guilds.fetch(guildId)).commands.set(commandsArray)
+    const guild = await (await client.guilds.fetch(guildId)).commands.set(commandsArray)
+    console.log(await client.application?.commands.set(commandsArray));
 }
 
 client.once('ready', async () => {
@@ -61,16 +57,20 @@ client.once('ready', async () => {
     console.log('Ready!')
 })
 
-const eventsPath = path.join(__dirname, 'events')
-const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'))
+async function registerEvents() {
+    const eventsPath = path.join(__dirname, 'events')
+    const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.ts'))
 
-for (const file of eventFiles) {
-    const event = require(path.join(eventsPath, file)) // mhm
-    if (event.once) {
-        client.once(event.name, (...args) => event.execute(client, ...args))
-    } else {
-        client.on(event.name, (...args) => event.execute(client, ...args))
+    for (const file of eventFiles) {
+        const event: DiscordEvent = await import(path.join(eventsPath, file)) // mhm
+        if (event.once) {
+            client.once(event.name, (...args) => event.execute(client, ...args))
+        } else {
+            client.on(event.name, (...args) => event.execute(client, ...args))
+        }
     }
 }
+
+registerEvents()
 
 client.login(process.env.BOT_TOKEN)

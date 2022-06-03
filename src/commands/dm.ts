@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { CommandInteraction, Client } from 'discord.js'
+import { Client, CommandInteraction } from 'discord.js';
 
 export const data = new SlashCommandBuilder()
     .setName('dm')
@@ -19,9 +19,9 @@ export const data = new SlashCommandBuilder()
     .addIntegerOption(option =>
         option.setName('delay')
             .setDescription('The delay between messages (in seconds)')
-            .setRequired(false))
-
-export async function execute(interaction: CommandInteraction, client: Client) {
+            .setRequired(false));
+            
+export async function execute(client: Client, interaction: CommandInteraction) {
     await interaction.deferReply({ ephemeral: true })
     const user = interaction.options.getUser('user', true)
     const amount = interaction.options.getInteger('amount', false) || 1
@@ -31,7 +31,7 @@ export async function execute(interaction: CommandInteraction, client: Client) {
     const override = ['277016821809545216']
 
     if (amount > 10 && !override.includes(interaction.user.id)) return interaction.editReply({ content: 'You can only send 10 messages at a time!' })
-    if (delay > 300 && !override.includes(interaction.user.id)) return interaction.editReply({ content: 'You can only send messages with a delay of less than 5 minutes!' })  
+    if (delay > 300 && !override.includes(interaction.user.id)) return interaction.editReply({ content: 'You can only send messages with a delay of less than 5 minutes!' })
 
     await setTimeout(async () => {
         for (let i = 0; i < amount; ++i) {
@@ -40,5 +40,4 @@ export async function execute(interaction: CommandInteraction, client: Client) {
     }, delay * 1000)
 
     await interaction.editReply({ content: `Sent ${amount} DM(s) to ${user.username}` })
-        
 }
