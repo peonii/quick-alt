@@ -1,5 +1,5 @@
-const { ModalAssertions } = require('@discordjs/builders')
-const handleCommand = require('../handlers/commands')
+import { ModalAssertions } from '@discordjs/builders'
+import handleCommand from '../handlers/commands'
 
 module.exports = {
     name: 'interactionCreate',

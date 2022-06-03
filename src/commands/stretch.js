@@ -1,6 +1,6 @@
-const sharp = require('sharp')
-const { SlashCommandBuilder } = require('@discordjs/builders')
-const fetch = require('node-fetch')
+import sharp from 'sharp'
+import { SlashCommandBuilder } from '@discordjs/builders'
+import fetch from 'node-fetch'
 
 module.exports = {
     data: new SlashCommandBuilder()

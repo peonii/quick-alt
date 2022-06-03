@@ -1,4 +1,4 @@
-const { dailyStopChannelId } = require('../../keys.json')
+import { dailyStopChannelId } from '../../keys.json'
 
 module.exports = {
     name: 'messageCreate',

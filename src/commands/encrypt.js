@@ -1,5 +1,5 @@
-const { SlashCommandBuilder } = require('@discordjs/builders')
-const crypto = require('node:crypto')
+import { SlashCommandBuilder } from '@discordjs/builders'
+import crypto from 'node:crypto'
 
 module.exports = {
     data: new SlashCommandBuilder()

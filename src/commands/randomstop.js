@@ -1,7 +1,7 @@
-const { SlashCommandBuilder } = require('@discordjs/builders')
-const fetch = require('node-fetch')
-const { MessageEmbed } = require('discord.js')
-const { getVehiclesAtPole, selectRandomStop } = require('../libs/warsaw-api');
+import { SlashCommandBuilder } from '@discordjs/builders'
+import fetch from 'node-fetch'
+import { MessageEmbed } from 'discord.js'
+import { getVehiclesAtPole, selectRandomStop } from '../libs/warsaw-api'
 
 module.exports = {
     data: new SlashCommandBuilder()
