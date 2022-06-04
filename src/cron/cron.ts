@@ -9,7 +9,7 @@ import { WebhookClient, MessageEmbed, Client, TextChannel } from 'discord.js'
 let client: Client<boolean>
 
 const fetchBusStops = new cron.CronJob(
-    '0 0 * * *',
+    '0 0 * * 1,2,3,4,5',
     async function() {
         const locationApiEndpoint = `https://api.um.warszawa.pl/api/action/dbstore_get/?id=ab75c33d-3a26-4342-b36a-6e5fef0a3ac3&sortBy=id&apikey=${warsawAPI}`
 
