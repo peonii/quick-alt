@@ -6,3 +6,5 @@ package-lock.json
 keys.json
 deploy.sh
 logs.sh
+dist
+points.db
