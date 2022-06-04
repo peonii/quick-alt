@@ -32,7 +32,7 @@ client.commands = new Collection()
 async function updateSlashCommands() {
     const commandsArray = []
     const commandsPath = path.join(__dirname, 'commands')
-    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.ts'))
+    const commandFiles = fs.readdirSync(commandsPath).filter(file => (file.endsWith('.ts') || file.endsWith('js')))
 
     for (const file of commandFiles) {
         const command: Command = await import(`${__dirname}/commands/${file}`)
@@ -59,7 +59,7 @@ client.once('ready', async () => {
 
 async function registerEvents() {
     const eventsPath = path.join(__dirname, 'events')
-    const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.ts'))
+    const eventFiles = fs.readdirSync(eventsPath).filter(file => (file.endsWith('.ts') || file.endsWith('js')))
 
     for (const file of eventFiles) {
         const event: DiscordEvent = await import(path.join(eventsPath, file)) // mhm
