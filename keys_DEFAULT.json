@@ -1,3 +1,6 @@
 {
-    "warsawAPI": "your-warsaw-api-key"
+    "warsawAPI": "your-warsaw-api-key",
+    "webhookID": "your-webhook-id",
+    "webhookToken": "your-webhook-token",
+    "dailyStopChannelID": "daily-stop-channel-id"
 }
