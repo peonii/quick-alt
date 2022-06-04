@@ -4,7 +4,7 @@ import User from './models/User'
 
 const sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: '../../points.db'
+    storage: 'points.db'
 })
 
 User.init(
