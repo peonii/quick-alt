@@ -20,7 +20,7 @@ export async function execute(client: Client, interaction: CommandInteraction) {
         return await interaction.editReply('You are not allowed to run this command!')
     }
 
-    const [user, created] = await User.findOrCreate({
+    const [user, _created] = await User.findOrCreate({
         where: {
             id
         },

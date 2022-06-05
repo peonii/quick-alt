@@ -18,5 +18,9 @@ export async function execute(client: Client, message: Message) {
 
         if (message.content.toLowerCase().includes('?stfu'))
             message.reply('literally 1984')
+
+        if (message.content === '!jebać Sploy') {
+            message.reply('Sploy teraz aktualnie jest jebany.')
+        }
     }
 }
