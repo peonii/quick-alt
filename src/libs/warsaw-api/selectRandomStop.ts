@@ -17,9 +17,9 @@ export default async function() {
 
     const addressComponents = locationJSON.results.map((el: any) => el.address_components)
     for (const addressComponent of addressComponents) {
-        const district = addressComponent.filter((el: any) => el.types.includes('sublocality_level_1'))
+        const district = addressComponent.filter((el: any) => el.types.includes('sublocality_level_1'))[0]
         if (district) {
-            foundDistrict = district.long_name || district.short_name || 'Strefa II'
+            foundDistrict = district.long_name || district.short_name
             break
         }
     }
