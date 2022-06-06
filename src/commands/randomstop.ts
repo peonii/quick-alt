@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import fetch from 'node-fetch'
-import { Client, CommandInteraction, MessageEmbed } from 'discord.js'
+import { Client, CommandInteraction, Message, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js'
 import getVehiclesAtPole from '../libs/warsaw-api/getVehiclesAtPole'
 import selectRandomStop from '../libs/warsaw-api/selectRandomStop'
 import getPointsOfDistrict from '../libs/warsaw-api/getPointsOfDistrict'
@@ -36,7 +36,15 @@ export async function execute(client: Client, interaction: CommandInteraction) {
     else if (line.length === 3) lineType = 'Autobus'
     else lineType = 'Tramwaj'
 
-    const locationMsg = ` - [Lokalizacja](https://www.google.com/maps/search/?api=1&query=${stop.latitude},${stop.longitude})`
+    const row = new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+                .setCustomId('location')
+                .setLabel('Lokalizacja')
+                .setStyle('LINK')
+                .setURL(`https://www.google.com/maps/search/?api=1&query=${stop.latitude},${stop.longitude}`)
+        )
+
     const points = getPointsOfDistrict(stop.districtName)
 
     const finalEmbed = new MessageEmbed()
@@ -51,13 +59,9 @@ export async function execute(client: Client, interaction: CommandInteraction) {
                 name: 'Linia',
                 value: `${lineType} - Linia **${line}**`
             },
-            {
-                name: 'Lokalizacja',
-                value: locationMsg
-            }
         )
         .setTimestamp()
         .setFooter({ text: `Powered by UM Warszawy - Stop ID ${stop.stopID}` })
 
-    await interaction.editReply({ content: 'Here is your stop:', embeds: [finalEmbed] })
+    await interaction.editReply({ content: 'Here is your stop:', embeds: [finalEmbed], components: [row] })
 }
