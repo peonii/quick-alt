@@ -3,7 +3,7 @@ import fetch from 'node-fetch'
 import { Client, CommandInteraction, MessageEmbed } from 'discord.js'
 import getVehiclesAtPole from '../libs/warsaw-api/getVehiclesAtPole'
 import selectRandomStop from '../libs/warsaw-api/selectRandomStop'
-import getPointsOfDistrict from 'src/libs/warsaw-api/getPointsOfDistrict'
+import getPointsOfDistrict from '../libs/warsaw-api/getPointsOfDistrict'
 
 export const data = new SlashCommandBuilder()
         .setName('randomstop')
