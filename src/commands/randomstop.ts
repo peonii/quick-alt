@@ -40,11 +40,24 @@ export async function execute(client: Client, interaction: CommandInteraction) {
     const points = getPointsOfDistrict(stop.districtName)
 
     const finalEmbed = new MessageEmbed()
-        .setTitle(`${stop.stopName} ${stop.poleID} (${stop.districtName} - ${points})`)
-        .setDescription(`${lineType} - Linia **${line}**` + locationMsg)
+        .setTitle(`${stop.stopName} ${stop.poleID}`)
         .setColor('#0099ff')
+        .addFields(
+            {
+                name: 'Dzielnica',
+                value: `${stop.districtName} - ${points}pkt`
+            },
+            {
+                name: 'Linia',
+                value: `${lineType} - Linia **${line}**`
+            },
+            {
+                name: 'Lokalizacja',
+                value: locationMsg
+            }
+        )
         .setTimestamp()
-        .setFooter(`Powered by UM Warszawy - Stop ID ${stop.stopID}`)
+        .setFooter({ text: `Powered by UM Warszawy - Stop ID ${stop.stopID}` })
 
     await interaction.editReply({ content: 'Here is your stop:', embeds: [finalEmbed] })
 }

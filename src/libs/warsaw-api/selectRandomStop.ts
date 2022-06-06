@@ -1,4 +1,5 @@
 import stopsIndex from '../../../data/warszawa.json'
+// @ts-ignore
 import { googleMapsAPI } from '../../../keys.json'
 import fetch from 'node-fetch'
 
