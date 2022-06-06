@@ -39,7 +39,6 @@ export async function execute(client: Client, interaction: CommandInteraction) {
     const row = new MessageActionRow()
         .addComponents(
             new MessageButton()
-                .setCustomId('location')
                 .setLabel('Lokalizacja')
                 .setStyle('LINK')
                 .setURL(`https://www.google.com/maps/search/?api=1&query=${stop.latitude},${stop.longitude}`)
