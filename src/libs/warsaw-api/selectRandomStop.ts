@@ -17,7 +17,9 @@ export default async function() {
     const addressComponents = locationJSON.results[0].address_components
     const district = addressComponents.filter((el: any) => el.types.includes('sublocality_level_1'))[0]
 
-    const districtName = district.long_name || district.short_name || ''
+    let districtName = '';
+    if (district)
+        districtName = district.long_name || district.short_name || ''
 
     return {
         stopID: stop.values[0].value,
