@@ -38,7 +38,7 @@ export async function execute(client: Client, interaction: CommandInteraction) {
     const locationMsg = ` - [Lokalizacja](https://www.google.com/maps/search/?api=1&query=${stop.latitude},${stop.longitude})`
 
     const finalEmbed = new MessageEmbed()
-        .setTitle(`${stop.stopName} ${stop.poleID}`)
+        .setTitle(`${stop.stopName} ${stop.poleID} ${stop.districtName}`)
         .setDescription(`${lineType} - Linia **${line}**` + locationMsg)
         .setColor('#0099ff')
         .setTimestamp()
