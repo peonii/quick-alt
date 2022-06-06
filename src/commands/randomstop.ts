@@ -3,6 +3,7 @@ import fetch from 'node-fetch'
 import { Client, CommandInteraction, MessageEmbed } from 'discord.js'
 import getVehiclesAtPole from '../libs/warsaw-api/getVehiclesAtPole'
 import selectRandomStop from '../libs/warsaw-api/selectRandomStop'
+import getPointsOfDistrict from 'src/libs/warsaw-api/getPointsOfDistrict'
 
 export const data = new SlashCommandBuilder()
         .setName('randomstop')
@@ -36,9 +37,10 @@ export async function execute(client: Client, interaction: CommandInteraction) {
     else lineType = 'Tramwaj'
 
     const locationMsg = ` - [Lokalizacja](https://www.google.com/maps/search/?api=1&query=${stop.latitude},${stop.longitude})`
+    const points = getPointsOfDistrict(stop.districtName)
 
     const finalEmbed = new MessageEmbed()
-        .setTitle(`${stop.stopName} ${stop.poleID} ${stop.districtName}`)
+        .setTitle(`${stop.stopName} ${stop.poleID} (${stop.districtName} - ${points})`)
         .setDescription(`${lineType} - Linia **${line}**` + locationMsg)
         .setColor('#0099ff')
         .setTimestamp()
