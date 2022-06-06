@@ -4,12 +4,13 @@ import fetch from 'node-fetch'
 import { warsawAPI, webhookId, webhookToken, dailyStopChannelID } from '../../keys.json'
 import getVehiclesAtPole from '../libs/warsaw-api/getVehiclesAtPole'
 import selectRandomStop from '../libs/warsaw-api/selectRandomStop'
-import { WebhookClient, MessageEmbed, Client, TextChannel } from 'discord.js'
+import { WebhookClient, MessageEmbed, Client, TextChannel, MessageActionRow, MessageButton } from 'discord.js'
+import getPointsOfDistrict from '../libs/warsaw-api/getPointsOfDistrict'
 
 let client: Client<boolean>
 
 const fetchBusStops = new cron.CronJob(
-    '0 0 * * 1,2,3,4,5',
+    '30 0 * * *',
     async function() {
         const locationApiEndpoint = `https://api.um.warszawa.pl/api/action/dbstore_get/?id=ab75c33d-3a26-4342-b36a-6e5fef0a3ac3&sortBy=id&apikey=${warsawAPI}`
 
@@ -39,20 +40,37 @@ const fetchBusStops = new cron.CronJob(
         else if (line.length === 3) lineType = 'Autobus'
         else lineType = 'Tramwaj'
 
-        const locationMsg = ` - [Lokalizacja](https://www.google.com/maps/search/?api=1&query=${stop.latitude},${stop.longitude})`
-        console.log('send')
-
         const webhookClient = new WebhookClient({ id: webhookId, token: webhookToken })
+        const row = new MessageActionRow()
+            .addComponents(
+                new MessageButton()
+                    .setLabel('Lokalizacja')
+                    .setStyle('LINK')
+                    .setURL(`https://www.google.com/maps/search/?api=1&query=${stop.latitude},${stop.longitude}`)
+            )
+        const points = getPointsOfDistrict(stop.districtName)
         console.log('send')
         const embed = new MessageEmbed()
             .setTitle(`${stop.stopName} ${stop.poleID}`)
-            .setDescription(`${lineType} - Linia **${line}**${locationMsg}`)
+            .addFields(
+                {
+                    name: 'Dzielnica',
+                    value: `${stop.districtName} - ${points}pkt`
+                },
+                {
+                    name: 'Linia',
+                    value: `${lineType} - Linia **${line}**`
+                },
+            )
             .setColor('#0099ff')
 
         const msg = await webhookClient.send({
             embeds: [
                 embed
             ],
+            components: [
+                row
+            ]
         })
 
         const months = ['stycznia', 'lutego', 'marca', 'kwietnia', 'maja', 'czerwca', 'lipca', 'sierpnia', 'września', 'października', 'listopada', 'grudnia']
