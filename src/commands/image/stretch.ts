@@ -10,10 +10,24 @@ export const data = new SlashCommandBuilder()
             option.setName('image')
                 .setDescription('The image to stretch')
                 .setRequired(false))
+        .addIntegerOption(option =>
+            option.setName('threshold')
+                .setDescription('The threshold to stretch the image')
+                .setRequired(false))
+        .addStringOption(option =>
+            option.setName('mode')
+                .setDescription('The mode to stretch the image')
+                .setRequired(false)
+                .addChoices(
+                    { name: 'horizontal', value: 'h' },
+                    { name: 'vertical', value: 'v' },
+                ))
 
 export async function execute(client: Client, interaction: CommandInteraction) {
     await interaction.deferReply()
     let image: MessageAttachment | null | undefined = interaction.options.getAttachment('image', false)
+    let mode = interaction.options.getString('mode', false) || 'h'
+    let threshold = (interaction.options.getInteger('threshold', false) || 1) + 1
     let buffer
     if (image) {
         const response = await fetch(image.url)
@@ -47,9 +61,18 @@ export async function execute(client: Client, interaction: CommandInteraction) {
         return
     }
 
+    const height = image?.height
+    if (height === null) {
+        await interaction.editReply({ content: 'No image found!' })
+        return
+    }
+
+    let thresholdH = mode === 'h' ? threshold : 1
+    let thresholdV = mode === 'v' ? threshold : 1
+
     // stretch the image to 2x width
     const sharpBuf = await sharp(buffer)
-    const stretched = await sharpBuf.resize(width * 2, image?.height, { fit: 'fill' }).toBuffer() // mhm
+    const stretched = await sharpBuf.resize(width * thresholdH, height * thresholdV, { fit: 'fill' }).toBuffer() // mhm
 
     await interaction.editReply({
         content: 'Here is your stretched image!',

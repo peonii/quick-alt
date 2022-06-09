@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { Client, CommandInteraction } from "discord.js";
-import { User } from '../db/dbObjects'
+import { User } from '../../db/dbObjects'
 
 
 export const data = new SlashCommandBuilder()
@@ -17,7 +17,7 @@ export async function execute(client: Client, interaction: CommandInteraction) {
         },
         defaults: {
             id,
-            points: 0
+            points: 0,
         }
     })
 

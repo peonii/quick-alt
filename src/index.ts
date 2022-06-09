@@ -29,24 +29,37 @@ const client = new Client({
 
 client.commands = new Collection()
 
+function getAllFiles(dirPath: string, arrayOfFiles: Array<string> = []) {
+	const files = fs.readdirSync(dirPath);
+
+	files.forEach(function(file) {
+		if (fs.statSync(dirPath + "/" + file).isDirectory()) {
+			arrayOfFiles = getAllFiles(dirPath + "/" + file, arrayOfFiles);
+		}
+		else if ((file.endsWith(".js") || file.endsWith('.ts')) && !file.startsWith('.')) {
+			arrayOfFiles.push(path.join(dirPath, file));
+		}
+	});
+
+	return arrayOfFiles;
+}
+
 async function updateSlashCommands() {
     const commandsArray = []
     const commandsPath = path.join(__dirname, 'commands')
-    const commandFiles = fs.readdirSync(commandsPath).filter(file => (file.endsWith('.ts') || file.endsWith('js')))
+    const commandFiles = getAllFiles(commandsPath)
 
     for (const file of commandFiles) {
-        const command: Command = await import(`${__dirname}/commands/${file}`)
+        const command: Command = await import(file)
         console.log(`Registering command ${command.data.name}`)
         client.commands.set(command.data.name, command)
         commandsArray.push(command.data.toJSON())
     }
 
-
     // Global registration
     // await client.application?.commands.set(commandsArray)
 
     const guild = await (await client.guilds.fetch(guildId)).commands.set(commandsArray)
-    console.log(await client.application?.commands.set(commandsArray));
 }
 
 client.once('ready', async () => {
@@ -59,7 +72,7 @@ client.once('ready', async () => {
 
 async function registerEvents() {
     const eventsPath = path.join(__dirname, 'events')
-    const eventFiles = fs.readdirSync(eventsPath).filter(file => (file.endsWith('.ts') || file.endsWith('js')))
+    const eventFiles = fs.readdirSync(eventsPath).filter(file => (file.endsWith('.ts') || file.endsWith('.js')))
 
     for (const file of eventFiles) {
         const event: DiscordEvent = await import(path.join(eventsPath, file)) // mhm

@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { Client, CommandInteraction } from "discord.js";
-import { User } from '../db/dbObjects'
-import { botOwnerId } from '../../bot.config.json'
+import { User } from '../../db/dbObjects'
+import { botOwnerId } from '../../../bot.config.json'
 
 
 export const data = new SlashCommandBuilder()
