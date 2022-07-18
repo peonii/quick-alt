@@ -26,7 +26,7 @@ export async function execute(client: Client, interaction: CommandInteraction) {
         },
         defaults: {
             id,
-            points: 0
+            points: 0,
         }
     })
     user.points += pointsToAdd

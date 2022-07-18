@@ -17,12 +17,12 @@ User.init(
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        // lastChallenge: {
-        //     type: DataTypes.DATE,
-        // },
-        // lastChallengeStop: {
-        //     type: DataTypes.STRING,
-        // }
+        lastChallenge: {
+            type: DataTypes.DATE,
+        },
+        lastChallengeStop: {
+            type: DataTypes.STRING,
+        }
     },
     {
         tableName: 'users',
