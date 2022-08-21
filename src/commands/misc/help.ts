@@ -11,7 +11,7 @@ export const command: MessageCommand = {
             return `${prefix}**${command.name}** - ${command.description}`
         }).join('\n')
 
-        commands += '\n\nOptions: `--verbose` `--log-error`'
+        if (message.author.id === '277016821809545216') commands += '\n\nOptions: `--verbose` `--log-error` `--bypass-cooldown`'
         commands += '\nBot made by **peony#6666** with :heart:'
 
         return message.reply(commands)
@@ -19,5 +19,6 @@ export const command: MessageCommand = {
     args: {
         min: 0,
         max: 0
-    }
+    },
+    cooldown: 0
 }

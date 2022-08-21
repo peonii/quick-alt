@@ -21,5 +21,6 @@ export const command: MessageCommand = {
     args: {
         min: 0,
         max: 0
-    }
+    },
+    cooldown: 0
 }

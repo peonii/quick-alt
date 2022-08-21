@@ -81,5 +81,6 @@ export const command: MessageCommand = {
         min: 0,
         max: 1
     },
-    attachment: true
+    attachment: true,
+    cooldown: 5
 }

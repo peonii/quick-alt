@@ -9,6 +9,7 @@ export interface MessageCommandArguments {
 export interface MessageCommandOptions {
     verbose: boolean
     log_error: boolean
+    bypass_cooldown: boolean
 }
 
 export interface MessageCommand {
@@ -17,4 +18,5 @@ export interface MessageCommand {
     attachment?: boolean
     execute: (client: Client, message: Message, args: Array<string>, attachment: Attachment | null | undefined, options: MessageCommandOptions) => Promise<any>
     args: MessageCommandArguments
+    cooldown: number
 }

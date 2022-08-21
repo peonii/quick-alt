@@ -13,6 +13,7 @@ dotenv.config()
 declare module 'discord.js' {
     interface Client {
         commands: Collection<string, MessageCommand>
+        cooldowns: Collection<string, Collection<string, Date>>
     }
 }
 
@@ -29,6 +30,7 @@ const client = new Client({
 })
 
 client.commands = new Collection()
+client.cooldowns = new Collection()
 
 function getAllFiles(dirPath: string, arrayOfFiles: Array<string> = []) {
 	const files = fs.readdirSync(dirPath);
@@ -52,10 +54,10 @@ async function registerCommands() {
 
     for (const file of commandFiles) {
         const { command } = await import(file)
-        console.log(command)
         console.log(`Registering command ${command.name}`)
         client.commands.set(command.name, command)
         //commandsArray.push(command.data.toJSON())
+        client.cooldowns.set(command.name, new Collection())
     }
 
     // Global registration
