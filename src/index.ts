@@ -1,29 +1,30 @@
-import { Client, Intents, Collection } from 'discord.js'
+import { Client, GatewayIntentBits, Collection } from 'discord.js'
 import Discord from 'discord.js'
 import dotenv from 'dotenv'
 import fs from 'node:fs'
 import path from 'node:path'
-import cronJobs from './cron/cron'
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { guildId } from '../bot.config.json'
 import DiscordEvent from './types/event'
-import Command from './types/command'
+import { MessageCommand } from './types/command'
 
 dotenv.config()
 
 declare module 'discord.js' {
     interface Client {
-        commands: Collection<string, Command>
+        commands: Collection<string, MessageCommand>
     }
 }
 
 const client = new Client({
     intents: [
-        Intents.FLAGS.GUILDS,
-        Intents.FLAGS.GUILD_MESSAGES,
-        Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-        Intents.FLAGS.GUILD_MEMBERS,
-        Intents.FLAGS.DIRECT_MESSAGES
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMembers,
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.DirectMessageReactions,
+        GatewayIntentBits.MessageContent
     ],
 })
 
@@ -44,29 +45,30 @@ function getAllFiles(dirPath: string, arrayOfFiles: Array<string> = []) {
 	return arrayOfFiles;
 }
 
-async function updateSlashCommands() {
-    const commandsArray = []
+async function registerCommands() {
+    //const commandsArray = []
     const commandsPath = path.join(__dirname, 'commands')
     const commandFiles = getAllFiles(commandsPath)
 
     for (const file of commandFiles) {
-        const command: Command = await import(file)
-        console.log(`Registering command ${command.data.name}`)
-        client.commands.set(command.data.name, command)
-        commandsArray.push(command.data.toJSON())
+        const { command } = await import(file)
+        console.log(command)
+        console.log(`Registering command ${command.name}`)
+        client.commands.set(command.name, command)
+        //commandsArray.push(command.data.toJSON())
     }
 
     // Global registration
+    // Uncomment the following line to globally register commands
     // await client.application?.commands.set(commandsArray)
 
-    const guild = await (await client.guilds.fetch(guildId)).commands.set(commandsArray)
+    // Comment this line if you're registering commands globally
+    // const guild = await (await client.guilds.fetch(guildId)).commands.set(commandsArray)
 }
 
 client.once('ready', async () => {
     if (client.user == null) throw new Error('User does not exist on client!')
     console.log(`Logged in as ${client.user.tag}!`)
-    await updateSlashCommands()
-    cronJobs(client)
     console.log('Ready!')
 })
 
@@ -75,6 +77,7 @@ async function registerEvents() {
     const eventFiles = fs.readdirSync(eventsPath).filter(file => (file.endsWith('.ts') || file.endsWith('.js')))
 
     for (const file of eventFiles) {
+        console.log('Registering event ' + file)
         const event: DiscordEvent = await import(path.join(eventsPath, file)) // mhm
         if (event.once) {
             client.once(event.name, (...args) => event.execute(client, ...args))
@@ -85,5 +88,6 @@ async function registerEvents() {
 }
 
 registerEvents()
+registerCommands()
 
 client.login(process.env.BOT_TOKEN)

@@ -1,26 +1,51 @@
-import { Client, Message } from 'discord.js'
+import { ChannelType, Client, Message } from 'discord.js'
+import { prefix } from '../../bot.config.json'
 
 export const name = 'messageCreate'
 
 export async function execute(client: Client, message: Message) {
-    if (!(message.channel.type === 'DM')) {
-        if (message.content === 'h')
-            message.channel.send('██╗░░██╗ \n██║░░██║ \n███████║ \n██╔══██║ \n██║░░██║ \n╚═╝░░╚═╝')
+    if (!(message.channel.type === ChannelType.DM)) {
+        if (message.content.includes('quick alt'))
+            message.channel.send('please')
 
-        if (message.content.includes('maki alt'))
-            message.channel.send('no!!! i\'m the superior bot!!! b-baka...')
+        if (message.content.includes('i like lustre'))
+            message.reply('have you considered suicide')
 
-        if (message.content.toLowerCase().includes('nigger'))
-            message.channel.send('Ok')
 
-        if (message.content.toLowerCase().includes('querter') || message.content.toLowerCase().includes('qtr-chan') || message.content.toLowerCase().includes('qtr'))
-            message.reply('you baka!!! dont you notice she changed her name??? please use raisa instead!!!')
+        if (message.content.startsWith(prefix)) {
+            const args = message.content.split(' ')
 
-        if (message.content.toLowerCase().includes('?stfu'))
-            message.reply('literally 1984')
+            const commandName = args.shift()?.slice(prefix.length)
 
-        if (message.content === '!jebać Sploy') {
-            message.reply('Sploy teraz aktualnie jest jebany.')
+            if (!commandName) return
+
+            const command = client.commands.get(commandName);
+
+            if (!command) return message.reply('No command found with that name!')
+
+            if (command.args.min > args.length) {
+                return message.reply('Too little arguments provided!')
+            }
+            
+            if (command.args.max < args.length) {
+                return message.reply('Too many arguments provided!')
+            }
+
+            let attachment = null
+            let reference = null
+            
+            if (message.reference) reference = await message.fetchReference()
+
+            message.reply( reference.attachments.first().url)
+            //if (message.attachments.first()) attachment = message.attachments.first()
+            if (attachment) message.reply('att found')
+
+            try {
+                command.execute(client, message, args, attachment)
+            } catch (err) {
+                console.error(err)
+                message.reply('Something failed whilst executing this command!')
+            }
         }
     }
 }

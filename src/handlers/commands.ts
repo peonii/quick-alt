@@ -1,5 +1,6 @@
 import { Client, CommandInteraction } from "discord.js"
 
+/*
 export async function handleCommand(client: Client, interaction: CommandInteraction) {
     if (!interaction.isCommand()) return
 
@@ -13,3 +14,4 @@ export async function handleCommand(client: Client, interaction: CommandInteract
         await interaction.channel?.send({ content: 'Something went wrong!' })
     }
 }
+*/

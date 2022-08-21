@@ -1,7 +1,14 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { Client, CommandInteraction } from 'discord.js'
+import { Attachment, Client, CommandInteraction, Message } from 'discord.js'
 
-export default interface Command {
-    data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">
-    execute: (client: Client, interaction: CommandInteraction) => Promise<any>
+export interface MessageCommandArguments {
+    min: number
+    max: number
+}
+export interface MessageCommand {
+    name: string
+    description: string
+    attachment?: boolean
+    execute: (client: Client, message: Message, args: Array<string>, attachment: Attachment | null | undefined) => Promise<any>
+    args: MessageCommandArguments
 }
