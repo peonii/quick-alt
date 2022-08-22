@@ -1,6 +1,5 @@
 node_modules
 .env
-yarn.lock
 .DS_Store
 package-lock.json
 keys.json
