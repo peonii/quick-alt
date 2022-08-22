@@ -1,34 +1,19 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { AttachmentBuilder, Client, CommandInteraction, Message, PermissionsBitField } from 'discord.js'
+import { ApplicationCommandType, AttachmentBuilder, Client, CommandInteraction, ContextMenuCommandBuilder, Message, MessageContextMenuCommandInteraction, PermissionsBitField } from 'discord.js'
 import { MessageCommand } from '../../types/command'
 import { botOwnerId } from "../../../bot.config.json"
 
-export const command: MessageCommand = {
-    name: 'forcedelete',
-    description: 'Delete the message you are replying to',
-    async execute(client: Client, message: Message, args: Array<string>, attachment, options) {
-        if (message.author.id !== botOwnerId) { 
-            message.reply('You are not allowed to use this command!')
-            return 1
+export const command = {
+    data: new ContextMenuCommandBuilder()
+        .setName('Delete this message')
+        .setType(ApplicationCommandType.Message),
+    async execute(client: Client, interaction: MessageContextMenuCommandInteraction) {
+        if (interaction.user.id !== botOwnerId) { 
+            return interaction.reply({ content: 'You are not allowed to use this command!', ephemeral: true })
         }
-        const messageToDelete = await message.fetchReference()
-        if (!messageToDelete?.id) {
-            message.reply('No message found to delete!')
-            return 1
-        }
+        await interaction.targetMessage.delete()
 
-        await messageToDelete.delete()
-        await message.delete()
-
-        if (options.verbose)
-            message.channel.send('Removed message ' + messageToDelete.id)
-
-        return 0
-    },
-    args: {
-        min: 0,
-        max: 0
+        return interaction.reply({ content: 'Successfully removed message!', ephemeral: true })
     },
     cooldown: 0,
-    permissions: [PermissionsBitField.Flags.ManageMessages]
 }

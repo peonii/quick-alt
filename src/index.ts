@@ -6,13 +6,13 @@ import path from 'node:path'
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { guildId } from '../bot.config.json'
 import DiscordEvent from './types/event'
-import { MessageCommand } from './types/command'
+import { Command } from './types/command'
 
 dotenv.config()
 
 declare module 'discord.js' {
     interface Client {
-        commands: Collection<string, MessageCommand>
+        commands: Collection<string, Command>
         cooldowns: Collection<string, Collection<string, Date>>
     }
 }
@@ -48,29 +48,30 @@ function getAllFiles(dirPath: string, arrayOfFiles: Array<string> = []) {
 }
 
 async function registerCommands() {
-    //const commandsArray = []
+    const commandsArray = []
     const commandsPath = path.join(__dirname, 'commands')
     const commandFiles = getAllFiles(commandsPath)
 
     for (const file of commandFiles) {
         const { command } = await import(file)
-        console.log(`Registering command ${command.name}`)
-        client.commands.set(command.name, command)
-        //commandsArray.push(command.data.toJSON())
-        client.cooldowns.set(command.name, new Collection())
+        console.log(`Registering command ${command.data.name}`)
+        client.commands.set(command.data.name, command)
+        commandsArray.push(command.data.toJSON())
+        client.cooldowns.set(command.data.name, new Collection())
     }
 
     // Global registration
     // Uncomment the following line to globally register commands
-    // await client.application?.commands.set(commandsArray)
+    await client.application?.commands.set(commandsArray)
 
     // Comment this line if you're registering commands globally
-    // const guild = await (await client.guilds.fetch(guildId)).commands.set(commandsArray)
+    //const guild = await (await client.guilds.fetch(guildId)).commands.set(commandsArray)
 }
 
 client.once('ready', async () => {
     if (client.user == null) throw new Error('User does not exist on client!')
     console.log(`Logged in as ${client.user.tag}!`)
+    registerCommands()
     console.log('Ready!')
 })
 
@@ -90,6 +91,5 @@ async function registerEvents() {
 }
 
 registerEvents()
-registerCommands()
 
 client.login(process.env.BOT_TOKEN)

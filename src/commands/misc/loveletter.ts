@@ -1,45 +1,46 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { AttachmentBuilder, Client, CommandInteraction, Message, PermissionsBitField } from 'discord.js'
-import { MessageCommand } from '../../types/command'
-import { prefix } from "../../../bot.config.json"
+import { ActionRowBuilder, Client, CommandInteraction, ModalActionRowComponentBuilder, ModalBuilder,  TextInputBuilder, TextInputStyle } from 'discord.js'
+import { Command } from '../../types/command'
 
-export const command: MessageCommand = {
-    name: 'loveletter',
-    description: 'Send an anonymous DM to someone!',
-    async execute(client: Client, message: Message, args: Array<string>, attachment, options) {
-        const userToSend = client.users.cache.find(user => user.id === args[0])
+export const command = {
+    data: new SlashCommandBuilder()
+        .setName('loveletter')
+        .setDescription('Send someone a love letter!')
+        .addUserOption(opt => 
+            opt.setName('user')
+                .setDescription('The user to send the letter to')
+                .setRequired(true)),
+    async execute(client: Client, interaction: CommandInteraction) {
+        const recipient = interaction.options.getUser('user')
+        if (!recipient) return interaction.reply('You must specify a user to send the letter to!')
 
-        if (!userToSend) {
-            await message.reply('User not found!')
-            return 1
-        }
+        const modal = new ModalBuilder()
+            .setCustomId('loveletter')
+            .setTitle('Love Letter')
 
-        const letter = args.slice(1).join(' ')
+        const content = new TextInputBuilder()
+            .setCustomId('loveletter-content')
+            .setLabel('What do you want to send to ' + recipient.tag + '?')
+            .setStyle(TextInputStyle.Paragraph)
 
-        if (!letter) {
-            await message.reply('No letter provided!')
-            return 1
-        }
+        const actionRow = new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(content)
+
+        modal.addComponents(actionRow)
+
+        await interaction.showModal(modal)
+        const modalInteraction = await interaction.awaitModalSubmit({
+            filter: (i) => {
+                return true
+            },
+            time: 30000,
+        })
 
         try {
-            const dm = await userToSend.send('Someone sent you a love letter~!\n\n' + letter)
-        } catch (error) {
-            await message.reply('This person has their DMs closed!')
-            return 1
+            await recipient.send('Someone has sent a love letter to you!\n\n' + modalInteraction.fields.getTextInputValue('loveletter-content'))
+        } catch (err) {
+            return interaction.followUp({ content: 'This person has their DMs closed!', ephemeral: true })
         }
-        message.delete()
-
-        try {
-            await message.author.send('Sent letter to ' + userToSend.tag + '!')
-            return 0
-        } catch (error) {
-            return 1
-        }
+        return interaction.followUp({ content: `Successfully sent love letter to ${recipient.tag}!`, ephemeral: true })
     },
-    args: {
-        min: 2,
-        max: 9999
-    },
-    cooldown: 300,
-    permissions: []
+    cooldown: 300
 }

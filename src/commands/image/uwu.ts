@@ -1,17 +1,19 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { AttachmentBuilder, Client, CommandInteraction, Message } from 'discord.js'
+import { ApplicationCommandType, AttachmentBuilder, Client, CommandInteraction, ContextMenuCommandBuilder, Message, MessageContextMenuCommandInteraction } from 'discord.js'
 import { MessageCommand } from '../../types/command'
 import { prefix } from "../../../bot.config.json"
 import Canvas from '@napi-rs/canvas'
 
-export const command: MessageCommand = {
-    name: 'uwu',
-    description: 'Uwuify an image! (make it completely pink)',
-    async execute(client: Client, message: Message, args: Array<string>, attachment, options) {
+export const command = {
+    data: new ContextMenuCommandBuilder()
+        .setName('Uwuify this image')
+        .setType(ApplicationCommandType.Message),
+    async execute(client: Client, interaction: MessageContextMenuCommandInteraction) {
         //TODO: add support for links
+        const attachment = interaction.targetMessage.attachments.first()
 
         if (!attachment) {
-            message.reply('No image found to uwuify!')
+            interaction.reply('No image found to uwuify!')
             return 1
         }
 
@@ -40,13 +42,8 @@ export const command: MessageCommand = {
 
         const newAttachment = new AttachmentBuilder(await canvas.encode('webp'), { name: 'uwuified.webp' })
 
-        await message.reply({ content: '', files: [newAttachment] })
+        await interaction.reply({ content: '', files: [newAttachment] })
         return 0
     },
-    args: {
-        min: 0,
-        max: 1
-    },
     cooldown: 0,
-    permissions: []
 }

@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { Attachment, Client, CommandInteraction, Message, PermissionResolvable, PermissionsBitField } from 'discord.js'
+import { Attachment, ButtonInteraction, Client, CommandInteraction, ContextMenuCommandInteraction, Message, PermissionResolvable, PermissionsBitField } from 'discord.js'
 
 export interface MessageCommandArguments {
     min: number
@@ -22,4 +22,11 @@ export interface MessageCommand {
     args: MessageCommandArguments
     cooldown: number
     permissions: Array<PermissionResolvable>
+}
+
+export type InteractionUmbrellaType = CommandInteraction | ButtonInteraction | ContextMenuCommandInteraction
+export interface Command {
+    data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">,
+    execute: (client: Client, interaction: InteractionUmbrellaType) => Promise<any>
+    cooldown: number
 }

@@ -13,6 +13,7 @@ export async function execute(client: Client, message: Message) {
     if (message.content.includes('i hate peony'))
         message.delete()
 
+    /*
     if (message.content.startsWith(prefix)) {
         if (message.author.bot) return;
         let args = message.content.split(' ')
@@ -123,5 +124,7 @@ export async function execute(client: Client, message: Message) {
                 message.reply(errorMessage)
             }
         }
+        
     }
+    */
 }
