@@ -62,6 +62,7 @@ async function registerCommands() {
 
     // Global registration
     // Uncomment the following line to globally register commands
+    await client.application?.commands.set([])
     await client.application?.commands.set(commandsArray)
 
     // Comment this line if you're registering commands globally
