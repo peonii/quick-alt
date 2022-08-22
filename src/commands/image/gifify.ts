@@ -9,7 +9,10 @@ export const command: MessageCommand = {
     name: 'gifify',
     description: 'Turn any image or video into a gif',
     async execute(client: Client, message: Message, args: Array<string>, attachment, options) {
-        if (attachment?.name?.endsWith('.gif')) return message.reply('You can\'t gifify a gif!')
+        if (attachment?.name?.endsWith('.gif')) {
+            await message.reply('You can\'t gifify a gif!')
+            return 1
+        }
 
         let buffer = null
         if (args[0]) {
@@ -23,14 +26,15 @@ export const command: MessageCommand = {
 
             buffer = Buffer.from(temp)
         } else {
-            return message.reply('No image or video found to gifify!')
+            await message.reply('No image or video found to gifify!')
+            return 1
         }
 
         const response = await message.reply(':hourglass: Generating color palette for gif...')
 
         const ffmpeg = createFFmpeg()
         await ffmpeg.load()
-        if (!attachment?.name) return;
+        if (!attachment?.name) return 1
 
         await ffmpeg.FS('writeFile', attachment?.name, buffer)
 
@@ -66,6 +70,7 @@ export const command: MessageCommand = {
 
         try {
             await response.edit({ content: '', files: [gif] })
+            return 0
         }
         catch (err) {
             console.log(err)
@@ -75,6 +80,7 @@ export const command: MessageCommand = {
 
                 await message.reply({ files: [errorMessage] })
             }
+            return 1
         }
     },
     args: {
@@ -82,5 +88,6 @@ export const command: MessageCommand = {
         max: 1
     },
     attachment: true,
-    cooldown: 5
+    cooldown: 5,
+    permissions: []
 }

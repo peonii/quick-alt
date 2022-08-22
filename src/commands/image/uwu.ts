@@ -10,7 +10,10 @@ export const command: MessageCommand = {
     async execute(client: Client, message: Message, args: Array<string>, attachment, options) {
         //TODO: add support for links
 
-        if (!attachment) return message.reply('No image found to uwuify!')
+        if (!attachment) {
+            message.reply('No image found to uwuify!')
+            return 1
+        }
 
         if (!attachment.height || !attachment.width) throw new Error('Image has no height or width!')
 
@@ -37,11 +40,13 @@ export const command: MessageCommand = {
 
         const newAttachment = new AttachmentBuilder(await canvas.encode('webp'), { name: 'uwuified.webp' })
 
-        message.reply({ content: '', files: [newAttachment] })
+        await message.reply({ content: '', files: [newAttachment] })
+        return 0
     },
     args: {
         min: 0,
         max: 1
     },
-    cooldown: 0
+    cooldown: 0,
+    permissions: []
 }

@@ -9,10 +9,12 @@ export const command: MessageCommand = {
     async execute(client: Client, message: Message, args: Array<string>, attachment, options) {
         const att = new AttachmentBuilder('https://cdn.discordapp.com/attachments/1009211878901305416/1011018968699506701/Formosa.gmd2')
         message.reply({ content: '', files: [att] })
+        return 0
     },
     args: {
         min: 0,
         max: 0
     },
-    cooldown: 0
+    cooldown: 0,
+    permissions: []
 }
