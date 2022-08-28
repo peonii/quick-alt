@@ -62,11 +62,12 @@ async function registerCommands() {
 
     // Global registration
     // Uncomment the following line to globally register commands
+    await (await client.guilds.fetch(guildId)).commands.set([])
+    await (await client.guilds.fetch(guildId)).commands.set(commandsArray)
+    /*
     await client.application?.commands.set([])
     await client.application?.commands.set(commandsArray)
-
-    // Comment this line if you're registering commands globally
-    //const guild = await (await client.guilds.fetch(guildId)).commands.set(commandsArray)
+    */
 }
 
 client.once('ready', async () => {

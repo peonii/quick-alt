@@ -11,28 +11,48 @@ export const command = {
         .setType(ApplicationCommandType.Message),
     async execute(client: Client, interaction: MessageContextMenuCommandInteraction) {
         const attachment = interaction.targetMessage.attachments.first()
-        if (!attachment) {
-            return interaction.reply('No attachment found!')
+        let attachmentURL = ''
+        if (!attachment || !attachment.height || !attachment.width) {
+            const embeds = interaction.targetMessage.embeds;
+            if (!embeds) return
+
+            const embed = embeds[0]
+
+            if (embed.image) {
+                attachmentURL = embed.image.url
+            } else if (embed.thumbnail) {
+                attachmentURL = embed.thumbnail.url
+            } else if (embed.video) {
+                attachmentURL = embed.video.url
+            }
+        } else {
+            attachmentURL = attachment.url
         }
-        if (attachment.name?.endsWith('.gif')) {
+        if (attachmentURL.endsWith('.gif')) {
             return interaction.reply('You can\'t gifify a gif!')
         }
+        interaction.channel?.send('fuck you peony i hate you ' + attachmentURL)
+        const attachmentName = attachmentURL.split('/').pop()
+        await interaction.channel?.send('<@277016821809545216> kill yourself ' + attachmentName)
 
-        const temp = await fetch(attachment.url).then(res => res.arrayBuffer())
+        const temp = await fetch(attachmentURL).then(res => res.arrayBuffer())
 
         const buffer = Buffer.from(temp)
 
         await interaction.reply(':hourglass: Generating color palette for gif...')
 
         const ffmpeg = createFFmpeg()
+        console.log('loading my favorite :33')
         await ffmpeg.load()
-        if (!attachment?.name) return 1
+        console.log('bestie loaded')
 
-        await ffmpeg.FS('writeFile', attachment?.name, buffer)
+        if (!attachmentName) return 1
+
+        await ffmpeg.FS('writeFile', attachmentName, buffer)
 
         try {
             await ffmpeg.run(
-                '-i', attachment?.name,
+                '-i', attachmentName,
                 '-vf', 'palettegen=stats_mode=diff:max_colors=255:reserve_transparent=1',
                 '-y',
                 'palette.png'
@@ -45,7 +65,7 @@ export const command = {
         await interaction.editReply(':hourglass: Generating gif...')
 
         await ffmpeg.run(
-            '-i', attachment?.name,
+            '-i', attachmentName,
             '-i', 'palette.png',
             '-lavfi', 'paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle',
             '-t', '5',
